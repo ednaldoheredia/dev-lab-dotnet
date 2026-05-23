@@ -2,6 +2,8 @@ using System;
 
 namespace Poc_01
 {
+
+    //Inclusão de Comentário, para servir de comparação de alterações no arquivo GIT
     public class WeatherForecast
     {
         public DateTime Date { get; set; }
