@@ -85,7 +85,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Corrigido aqui (estava abaixo de um espaço vazio)
+          fetch-depth: 0
 
       - uses: github/super-linter@v6
         env:
@@ -94,39 +94,36 @@ jobs:
           VALIDATE_YAML: "true"
           VALIDATE_CSHARP: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
- code-security-check:
+          
+  code-security-check:
     name: Code Security Check
-    needs: versionamento           #Vai precisar do versionamento, needs é dependência.
+    needs: versionamento
     runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/master'
     permissions:
-      security-events: write       #Vai precisar de umas permissões a mais para escrita, para avisar de vulneabilidade
-      packages: read               #Ler pacotes
-      actions: read                #Ler actions
-      contents: read              
-
-    strategy:                      #Estratégia de Matri          
-      matrix:                      #Cria uma estratégia em forma de matriz, ele gera combinações ex: versões[10,12,14] as [ubuntu-latest, windows-lates], podemos dispara 
-                                   #jobs ou passos utilizando a matriz    
-        include:                   #incluindo parametros language e buil-mode.    
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    strategy:
+      matrix:
+        include:
           - name: Backend
             language: csharp
-            build-mode: autobuild   #Quando for a linguagem C# faz build
+            build-mode: autobuild
           - name: Frontend
-            language: javascript    #Quando for a linguagem Javacript não faz build-mode:none
+            language: javascript
             build-mode: none
-
     steps:
-      - uses: actions/checkout@v4                    #fazendo checkout
+      - uses: actions/checkout@v4
 
-      - uses: github/codeql-action/init@v3           #essa action vai rodar por baixo dos panos para validação do código, ele tem dois parametros initialize e actino
-        name: Initialize CodeQL - ${{ matrix.name }} #essa action vai rodar por baixo dos panos para validação do código
+      - uses: github/codeql-action/init@v3
+        name: Initialize CodeQL - ${{ matrix.name }}
         with:
-          languages: ${{ matrix.language }}          #pegando parametros da matrix da linha 229
-          build-mode: ${{ matrix.build-mode }}       #pegando parametros da matrix da linha 229
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
 
       - uses: github/codeql-action/analyze@v3
         name: Analyze code - ${{ matrix.name }}
         with:
           category: "/language:${{ matrix.language }}"
-    if: github.ref != 'refs/heads/master'
