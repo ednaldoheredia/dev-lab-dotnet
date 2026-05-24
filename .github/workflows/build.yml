@@ -99,13 +99,15 @@ jobs:
     name: Dependency Check
     needs: versionamento
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/master'
+    # ESSA LINHA ABAIXO GARANTE QUE SÓ RODA EM PULL REQUESTS:
+    if: github.event_name == 'pull_request'
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: write                        #Autorizando.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4                 #Fazendo checkout dos arquivos.
 
-      - uses: actions/dependency-review-action@v4
+      - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para validação de componentes.
         with:
           comment-summary-in-pr: always
+    if: github.ref != 'refs/heads/master'
