@@ -23,8 +23,9 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
 
-        #```Baixar do MarktPlace do Git action chamada git-version se utiliza de prefixo nas suas mensagens de commit para fazer o versionamento da sua alteração código
+        #```Baixart do MarktPlace do Git action chamada git-version se utiliza de prefixo nas suas mensagens de commit para fazer o versionamento da sua alteração código
         #```Cada vez eu você fizer alteração de código, ele vai altera a versão patch da sua aplicação, ele utiliza versionamento semantico, toda vez qeu ter alteração 
+        #```Ele sempre vai imcrementar o patch a cada alteração, se tiver uma mensagem do tipo prefixo feature ela vai aumentar minor, se for prefixo breaking vai fazer o major.
         #```Ele sempre vai imcrementar o patch a cada alteração, se tiver uma mensagem do tipo prefixo feature ela vai aumentar minor, se for prefixo breaking vai fazer o major.
 
         uses: codacy/git-version@2.8.0
