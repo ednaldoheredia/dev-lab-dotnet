@@ -9,20 +9,20 @@ versionamento:
         with:
           fetch-depth: 0
 
-      # Configuração cirúrgica para sanar o ambiente da Codacy
+      # Configuraï¿½ï¿½o cirï¿½rgica para sanar o ambiente da Codacy
       - name: Prepare Git Environment for Codacy
         run: |
-          # 1. Permissão global de diretório seguro
+          # 1. Permissï¿½o global de diretï¿½rio seguro
           git config --global --add safe.directory '*'
           
-          # 2. Forçar a sincronização de todas as tags de forma limpa
+          # 2. Forï¿½ar a sincronizaï¿½ï¿½o de todas as tags de forma limpa
           git fetch --tags --force --prune
           
           # 3. Garantir que a branch master local exista e esteja apontada corretamente
           git checkout master || git switch -c master
           
-          # 4. Solução para o erro do git describe: Se falhar, criamos um "ponto de partida" fictício interno
-          git describe --tags || echo "Nenhuma tag detectável pelo git describe. Forçando verificação..."
+          # 4. Soluï¿½ï¿½o para o erro do git describe: Se falhar, criamos um "ponto de partida" fictï¿½cio interno
+          git describe --tags || echo "Nenhuma tag detectï¿½vel pelo git describe. Forï¿½ando verificaï¿½ï¿½o..."
 
       - name: Run Git Version
         id: version
@@ -31,7 +31,7 @@ versionamento:
           release-branch: master
           prefix: v
 
-      - name: Tag do Repositório
+      - name: Tag do Repositï¿½rio
         if: github.ref == 'refs/heads/master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,10 +40,10 @@ versionamento:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
           
-          # Evita criar tag duplicada se a action retornar uma versão que já existe
+          # Evita criar tag duplicada se a action retornar uma versï¿½o que jï¿½ existe
           if ! git rev-parse "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
             git tag ${{ steps.version.outputs.version }}
             git push origin --tags
           else
-            echo "A tag ${{ steps.version.outputs.version }} já existe no repositório. Pulando criação."
+            echo "A tag ${{ steps.version.outputs.version }} jï¿½ existe no repositï¿½rio. Pulando criaï¿½ï¿½o."
           fi
