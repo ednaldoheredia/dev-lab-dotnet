@@ -110,4 +110,4 @@ jobs:
       - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para validação de componentes.
         with:
           comment-summary-in-pr: always
-    if: github.ref != 'refs/heads/master'
+    
