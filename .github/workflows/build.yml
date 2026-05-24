@@ -62,7 +62,6 @@ jobs:
     needs: versionamento
 
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -110,3 +109,18 @@ jobs:
           VALIDATE_CSHARP: "true"       #pegar o linter para validar o yaml
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #utilizando esse Token
     if: github.ref != 'refs/heads/main'   
+
+  dependency-check:
+    name: Dependency Check
+    needs: versionamento
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write                        #Autorizando.
+    steps:
+      - uses: actions/checkout@v4                 #Fazendo checkout dos arquivos.
+
+      - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para validação de componentes.
+        with:
+          comment-summary-in-pr: always
+    if: github.ref != 'refs/heads/main'
