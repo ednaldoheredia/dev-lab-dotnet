@@ -1,7 +1,10 @@
+name: CI/CD Pipeline
+
 on:
   push:
     branches:
       - master
+
   pull_request:
     branches:
       - master
@@ -14,8 +17,13 @@ jobs:
   versionamento:
     runs-on: ubuntu-latest
     name: Versionamento
+
     permissions:
       contents: write
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -49,6 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build Project
     needs: versionamento
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -68,7 +77,13 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Test project
-        run: dotnet test --no-build --configuration Release --verbosity normal --logger trx --results-directory "TestResults"
+        run: |
+          dotnet test \
+            --no-build \
+            --configuration Release \
+            --verbosity normal \
+            --logger trx \
+            --results-directory "TestResults"
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -76,18 +91,34 @@ jobs:
           name: dotnet-test-results
           path: TestResults
 
+      - name: Publish Project
+        run: |
+          dotnet publish Poc_01.csproj \
+            -c Release \
+            -o ./publish \
+            --no-build
+
+      - name: Upload Publish Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: ./publish
+
   backend-lint:
     needs: versionamento
     runs-on: ubuntu-latest
     name: Backend Lint
+
     if: github.ref != 'refs/heads/master'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: github/super-linter@v6
+      - name: Run Super Linter
+        uses: github/super-linter@v6
         env:
           DEFAULT_BRANCH: "master"
           VALIDATE_ALL_CODEBASE: "false"
@@ -120,7 +151,7 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
-      - uses: github/codeql-action/analyze@v3
-        name: Analyze code - ${{ matrix.name }}
+      - name: Analyze code - ${{ matrix.name }}
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
