@@ -22,9 +22,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Passo extra de segurança para garantir o download das tags
-      - name: Fetch tags
-        run: git fetch --tags --force
+      # CORREÇÃO AQUI: Garante o download das tags E define o diretório como seguro globalmente
+      - name: Fix Git Permissions and Fetch tags
+        run: |
+          git config --global --add safe.directory '*'
+          git fetch --tags --force
 
       - name: Run Git Version
         id: version
@@ -32,7 +34,7 @@ jobs:
         with:
           release-branch: master
           prefix: v
-          lightweight-tags: true
+          # lightweight-tags removido daqui pois era inválido
 
       - name: Tag do Repositório # Toda vez que gera o número de versão faço a TAG
         if: github.ref == 'refs/heads/master' # Executa somente se estiver no branch master
@@ -42,7 +44,7 @@ jobs:
           echo "::notice:: ${{ steps.version.outputs.version }}" # Manda uma notificação
           git config --global user.email "${{ github.actor }}@users.noreply.github.com" # Configura o e-mail de quem disparou
           git config --global user.name "${{ github.actor }}" # Configura o nome de quem disparou
-          git tag -a ${{ steps.version.outputs.version }} -m "Release ${{ steps.version.outputs.version }}" # Criando a tag com o número da versão
+          git tag ${{ steps.version.outputs.version }} # Tag leve (evita loops de commits)
           git push origin --tags
 
   build:
