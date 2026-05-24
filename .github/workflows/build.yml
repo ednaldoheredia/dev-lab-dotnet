@@ -22,12 +22,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Passo extra de segurança para garantir o download das tags
+      - name: Fetch tags
+        run: git fetch --tags --force
+
       - name: Run Git Version
         id: version
         uses: codacy/git-version@2.8.0
         with:
           release-branch: master
           prefix: v
+          lightweight-tags: true
 
       - name: Tag do Repositório # Toda vez que gera o número de versão faço a TAG
         if: github.ref == 'refs/heads/master' # Executa somente se estiver no branch master
