@@ -1,4 +1,17 @@
-versionamento:
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  versionamento:
     runs-on: ubuntu-latest
     name: Versionamento
     permissions:
@@ -9,20 +22,10 @@ versionamento:
         with:
           fetch-depth: 0
 
-      # Configura��o cir�rgica para sanar o ambiente da Codacy
-      - name: Prepare Git Environment for Codacy
+      - name: Fix Git Permissions and Fetch tags
         run: |
-          # 1. Permiss�o global de diret�rio seguro
           git config --global --add safe.directory '*'
-          
-          # 2. For�ar a sincroniza��o de todas as tags de forma limpa
-          git fetch --tags --force --prune
-          
-          # 3. Garantir que a branch master local exista e esteja apontada corretamente
-          git checkout master || git switch -c master
-          
-          # 4. Solu��o para o erro do git describe: Se falhar, criamos um "ponto de partida" fict�cio interno
-          git describe --tags || echo "Nenhuma tag detect�vel pelo git describe. For�ando verifica��o..."
+          git fetch --tags --force
 
       - name: Run Git Version
         id: version
@@ -39,11 +42,27 @@ versionamento:
           echo "::notice:: ${{ steps.version.outputs.version }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
-          
-          # Evita criar tag duplicada se a action retornar uma vers�o que j� existe
-          if ! git rev-parse "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
-            git tag ${{ steps.version.outputs.version }}
-            git push origin --tags
-          else
-            echo "A tag ${{ steps.version.outputs.version }} j� existe no reposit�rio. Pulando cria��o."
-          fi
+          git tag ${{ steps.version.outputs.version }}
+          git push origin --tags
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build Project
+    needs: versionamento
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '3.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test project
+        run: dotnet test --no-build --verbosity normal
