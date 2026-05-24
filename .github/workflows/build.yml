@@ -14,7 +14,7 @@ jobs:
   versionamento:
 
     runs-on: ubuntu-latest
-    name: Versionamento         #```criar uma nova branch, que seria gerar a versão v1.0.0 antes de iniciar o Build
+    name: Versão         #```criar uma nova branch, que seria gerar a versão v1.0.0 antes de iniciar o Build
 
     steps:
       - name: Checkout Code
@@ -22,14 +22,14 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
-
+        #```Baixar do MarktPlace do Git action chamada git-version se utiliza de prefixo nas suas mensagens de commit para fazer o versionamento da sua alteração código
         #```Baixar do MarktPlace do Git action chamada git-version se utiliza de prefixo nas suas mensagens de commit para fazer o versionamento da sua alteração código
         #```Cada vez eu você fizer alteração de código, ele vai altera a versão patch da sua aplicação, ele utiliza versionamento semantico, toda vez qeu ter alteração 
-        #```Ele sempre vai imcrementar o patch a cada alteração, se tiver uma mensagem do tipo prefixo feature ela vai aumentar minor, se for prefixo breaking vai fazer o major.
-
-      - name: Git Version
+        #```Ele ssempre vai imcrementar o patch a cada alteração, se tiver uma mensagem do tipo prefixo feature ela vai aumentar minor, se for prefixo breaking vai fazer o major.
+        #```Baixar do MarktPlace do Git action chamada git-version se utiliza de prefixo nas suas mensagens de commit para fazer o versionamento da sua alteração código
+        #```Baixar do MarktPlace do Git action chamada git-version se utiliza de prefixo nas suas mensagens de commit para fazer o versionamento da sua alteração código
+       
         uses: codacy/git-version@2.8.0
-        id: version
         with:
           release-branch: master
           prefix: v
