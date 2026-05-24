@@ -1,22 +1,15 @@
-name: Build Minha Poc
-
 on:
   push:
     branches:
       - master
-
   pull_request:
     branches:
       - master
 
 jobs:
-
   versionamento:
-     #```Baixart do MarktPlace do Git action chamada git-version se utiliza de prefixo nas suas mensagens de commit para fazer o versionamento da sua alteração código
-     
     runs-on: ubuntu-latest
-    name: Version         #```criar uma nova branch, que seria gerar a versão v1.0.0 antes de iniciar o Build
-
+    name: Versionamento
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -24,23 +17,16 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
 
-        #```Baixart do MarktPlace do Git action chamada git-version se utiliza de prefixo nas suas mensagens de commit para fazer o versionamento da sua alteração código
-        #```Cada vez eu você fizer alteração de código, ele vai altera a versão patch da sua aplicação, ele utiliza versionamento semantico, toda vez qeu ter alteração 
-        #```Ele sempre vai imcrementar o patch a cada alteração, se tiver uma mensagem do tipo prefixo feature ela vai aumentar minor, se for prefixo breaking vai fazer o major.
-     
+      - name: Run Git Version
         uses: codacy/git-version@2.8.0
         with:
           release-branch: master
           prefix: v
-          #```Todas minhas versões tenha um v na frente por exemplo v1.0.0.0, mas isso vai de time para time para criar esse prefix
 
   build:
-
     runs-on: ubuntu-latest
     name: Build Project
-
     needs: versionamento
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -57,4 +43,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Test project
+        run: dotnet test --no-build --verbosity normal
+
+      - name: Test project1
         run: dotnet test --no-build --verbosity normal
