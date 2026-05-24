@@ -111,9 +111,6 @@ jobs:
           - name: Backend
             language: csharp
             build-mode: autobuild
-          - name: Frontend
-            language: javascript
-            build-mode: none
     steps:
       - uses: actions/checkout@v4
 
