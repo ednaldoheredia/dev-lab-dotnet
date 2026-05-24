@@ -182,16 +182,22 @@ jobs:
           name: web
           path: ./publish
 
+      - name: Sanitize Docker Tag
+        id: docker_tag
+        run: |
+          VERSION=$(echo "${{ env.version }}" | tr '/' '-' | tr ':' '-')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Docker Build Image
         run: |
           docker build \
-            -t ${{ vars.DOCKERHUB_REPOSITORY }}:${{ env.version }} .
+            -t ${{ vars.DOCKERHUB_REPOSITORY }}:${{ steps.docker_tag.outputs.version }} .
 
       - name: Tag Docker as Latest
         if: github.ref == 'refs/heads/master'
         run: |
           docker tag \
-            ${{ vars.DOCKERHUB_REPOSITORY }}:${{ env.version }} \
+            ${{ vars.DOCKERHUB_REPOSITORY }}:${{ steps.docker_tag.outputs.version }} \
             ${{ vars.DOCKERHUB_REPOSITORY }}:latest
 
       - name: Docker Login
