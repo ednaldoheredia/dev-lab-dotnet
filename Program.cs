@@ -16,6 +16,7 @@ namespace Poc_01
             CreateHostBuilder(args).Build().Run();
         }
 
+        //comentário
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
