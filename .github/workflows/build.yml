@@ -82,3 +82,25 @@ jobs:
         with:
           name: dotnet-test-results
           path: TestResults
+          
+  backend-lint:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    name: Backend Lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          
+          # o código abaixo é necessário para eu pegar todo histórico de commits
+          fetch-depth: 0
+
+      - uses: github/super-linter@v6    #pegar o linter ...
+        env:
+          DEFAULT_BRANCH: "master"        #pegar a master para validação 
+          VALIDATE_ALL_CODEBASE: "false"
+          VALIDATE_YAML: "true"         #pegar o linter para validar o yaml
+          VALIDATE_CSHARP: "true"       #pegar o linter para validar o yaml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #utilizando esse Token
+    if: github.ref != 'refs/heads/main'   
