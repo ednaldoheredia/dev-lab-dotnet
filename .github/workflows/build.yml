@@ -15,7 +15,7 @@ jobs:
      #```Baixart do MarktPlace do Git action chamada git-version se utiliza de prefixo nas suas mensagens de commit para fazer o versionamento da sua alteração código
      
     runs-on: ubuntu-latest
-    name: Versionamento         #```criar uma nova branch, que seria gerar a versão v1.0.0 antes de iniciar o Build
+    name: Version         #```criar uma nova branch, que seria gerar a versão v1.0.0 antes de iniciar o Build
 
     steps:
       - name: Checkout Code
