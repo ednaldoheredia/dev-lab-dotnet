@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - master
+
   pull_request:
     branches:
       - master
@@ -11,12 +12,16 @@ permissions:
   pull-requests: write
 
 jobs:
+
   versionamento:
     runs-on: ubuntu-latest
     name: Versionamento
+
     permissions:
       contents: write
+
     steps:
+
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
@@ -46,35 +51,34 @@ jobs:
           git push origin --tags
 
   build:
-  runs-on: ubuntu-latest
-  name: Build Project
-  needs: versionamento
+    runs-on: ubuntu-latest
+    name: Build Project
+    needs: versionamento
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    steps:
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '3.0.x'
-        cache: true
-        cache-dependency-path: |
-          Poc_01.sln
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '3.0.x'
+          cache: true
+          cache-dependency-path: |
+            Poc_01.sln
 
-    - name: Build project
-      run: dotnet build --configuration Release --no-restore
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: Test project
-      run: dotnet test --no-build --configuration Release --verbosity normal --logger trx --results-directory "TestResults"
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
 
-     - name: Test project
-      run: dotnet test --no-build --configuration Release --verbosity normal --logger trx --results-directory "TestResults"
+      - name: Test project
+        run: dotnet test --no-build --configuration Release --verbosity normal --logger trx --results-directory "TestResults"
 
-    - uses: actions/upload-artifact@v4
-      with:
-        name: dotnet-test-results
-        path: TestResultsults
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: TestResults
