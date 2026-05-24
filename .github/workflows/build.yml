@@ -14,19 +14,22 @@ permissions:
 jobs:
   versionamento:
     runs-on: ubuntu-latest
-    name: Versionamento
+    name: Gerar Tag de Versão
+    permissions:
+      contents: write # Obrigatório para permitir que a action crie a tag
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.head_ref }}
 
-      - name: Run Git Version
-        uses: codacy/git-version@2.8.0
-        with:
-          release-branch: master
-          prefix: v
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.71.0 # Versão moderna e atualizada
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true # Garante o prefixo 'v' (ex: v1.0.0)
+          DEFAULT_BUMP: patch # Se não achar prefixo, aumenta o patch
+          RELEASE_BRANCHES: master
 
   build:
     runs-on: ubuntu-latest
