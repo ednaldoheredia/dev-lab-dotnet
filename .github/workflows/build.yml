@@ -66,3 +66,6 @@ jobs:
 
       - name: Test project
         run: dotnet test --no-build --verbosity normal
+
+      - name: Test project1
+        run: dotnet test --no-build --verbosity normal
