@@ -82,3 +82,76 @@ jobs:
         with:
           name: dotnet-test-results
           path: TestResults
+
+  dependency-check:
+    name: Dependency Check
+    needs: versionamento
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write                        #Autorizando.
+    steps:
+      - uses: actions/checkout@v4                 #Fazendo checkout dos arquivos.
+
+      - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para validação de componentes.
+        with:
+          comment-summary-in-pr: always
+    if: github.ref != 'refs/heads/main'
+
+  backend-lint:
+    needs: versionamento
+    runs-on: ubuntu-latest
+    name: Backend Lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          
+          # o código abaixo é necessário para eu pegar todo histórico de commits
+          fetch-depth: 0
+
+      - uses: github/super-linter@v6    #pegar o linter 
+        env:
+          DEFAULT_BRANCH: "main"        #pegar a master para validação 
+          VALIDATE_ALL_CODEBASE: "false"
+          VALIDATE_YAML: "true"         #pegar o linter para validar o yaml
+          VALIDATE_CSHARP: "true"       #pegar o linter para validar o yaml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #utilizando esse Token
+    if: github.ref != 'refs/heads/main'    
+
+  code-security-check:
+    name: Code Security Check
+    needs: versionamento           #Vai precisar do versionamento, needs é dependência.
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write       #Vai precisar de umas permissões a mais para escrita, para avisar de vulneabilidade
+      packages: read               #Ler pacotes
+      actions: read                #Ler actions
+      contents: read              
+
+    strategy:                      #Estratégia de Matri          
+      matrix:                      #Cria uma estratégia em forma de matriz, ele gera combinações ex: versões[10,12,14] as [ubuntu-latest, windows-lates], podemos dispara 
+                                   #jobs ou passos utilizando a matriz    
+        include:                   #incluindo parametros language e buil-mode.    
+          - name: Backend
+            language: csharp
+            build-mode: autobuild   #Quando for a linguagem C# faz build
+          - name: Frontend
+            language: javascript    #Quando for a linguagem Javacript não faz build-mode:none
+            build-mode: none
+
+    steps:
+      - uses: actions/checkout@v4                    #fazendo checkout
+
+      - uses: github/codeql-action/init@v3           #essa action vai rodar por baixo dos panos para validação do código, ele tem dois parametros initialize e actino
+        name: Initialize CodeQL - ${{ matrix.name }} #essa action vai rodar por baixo dos panos para validação do código
+        with:
+          languages: ${{ matrix.language }}          #pegando parametros da matrix da linha 229
+          build-mode: ${{ matrix.build-mode }}       #pegando parametros da matrix da linha 229
+
+      - uses: github/codeql-action/analyze@v3
+        name: Analyze code - ${{ matrix.name }}
+        with:
+          category: "/language:${{ matrix.language }}"
+    if: github.ref != 'refs/heads/main'
