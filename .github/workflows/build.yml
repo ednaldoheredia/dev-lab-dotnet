@@ -39,7 +39,7 @@ jobs:
           release-branch: master
           prefix: v
 
-      - name: Tag do Repositório
+      - name: Tag do Repositï¿½rio
         if: github.ref == 'refs/heads/master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
