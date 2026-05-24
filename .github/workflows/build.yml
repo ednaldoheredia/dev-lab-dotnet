@@ -7,6 +7,12 @@ on:
     branches:
       - master
 
+      #Para cada workflow dentro desse repositório, se eu tiver um outro workflow rodando para essa mesma branch ele vai cancelar anterior, somente vou conseguir branchs diferente
+#duas branch dois dev na mesma branch e main branch rodando ele vai, mas você na sua branch e fizer  um commit e um push ele te que cancelar.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   pull-requests: write
