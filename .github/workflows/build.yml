@@ -39,7 +39,7 @@ jobs:
           release-branch: master
           prefix: v
 
-      - name: Tag do Repositório
+      - name: Tag do Repositï¿½rio
         if: github.ref == 'refs/heads/master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -94,12 +94,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           
-          # o código abaixo é necessário para eu pegar todo histórico de commits
+          # o cï¿½digo abaixo ï¿½ necessï¿½rio para eu pegar todo histï¿½rico de commits
           fetch-depth: 0
 
       - uses: github/super-linter@v6    #pegar o linter 
         env:
-          DEFAULT_BRANCH: "master"        #pegar a master para validação 
+          DEFAULT_BRANCH: "master"        #pegar a master para validaï¿½ï¿½o 
           VALIDATE_ALL_CODEBASE: "false"
           VALIDATE_YAML: "true"         #pegar o linter para validar o yaml
           VALIDATE_CSHARP: "true"       #pegar o linter para validar o yaml
@@ -116,7 +116,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4                 #Fazendo checkout dos arquivos.
 
-      - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para validação de componentes.
+      - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para validaï¿½ï¿½o de componentes.
         with:
           comment-summary-in-pr: always
     if: github.ref != 'refs/heads/master'
@@ -124,16 +124,16 @@ jobs:
 
   code-security-check:
     name: Code Security Check
-    needs: versionamento           #Vai precisar do versionamento, needs é dependência.
+    needs: versionamento           #Vai precisar do versionamento, needs ï¿½ dependï¿½ncia.
     runs-on: ubuntu-latest
     permissions:
-      security-events: write       #Vai precisar de umas permissões a mais para escrita, para avisar de vulneabilidade
+      security-events: write       #Vai precisar de umas permissï¿½es a mais para escrita, para avisar de vulneabilidade
       packages: read               #Ler pacotes
       actions: read                #Ler actions
       contents: read              
 
-    strategy:                      #Estratégia de Matri          
-      matrix:                      #Cria uma estratégia em forma de matriz, ele gera combinações ex: versões[10,12,14] as [ubuntu-latest, windows-lates], podemos dispara 
+    strategy:                      #Estratï¿½gia de Matri          
+      matrix:                      #Cria uma estratï¿½gia em forma de matriz, ele gera combinaï¿½ï¿½es ex: versï¿½es[10,12,14] as [ubuntu-latest, windows-lates], podemos dispara 
                                    #jobs ou passos utilizando a matriz    
         include:                   #incluindo parametros language e buil-mode.    
           - name: Backend
@@ -143,8 +143,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4                    #fazendo checkout
 
-      - uses: github/codeql-action/init@v3           #essa action vai rodar por baixo dos panos para validação do código, ele tem dois parametros initialize e actino
-        name: Initialize CodeQL - ${{ matrix.name }} #essa action vai rodar por baixo dos panos para validação do código
+      - uses: github/codeql-action/init@v3           #essa action vai rodar por baixo dos panos para validaï¿½ï¿½o do cï¿½digo, ele tem dois parametros initialize e actino
+        name: Initialize CodeQL - ${{ matrix.name }} #essa action vai rodar por baixo dos panos para validaï¿½ï¿½o do cï¿½digo
         with:
           languages: ${{ matrix.language }}          #pegando parametros da matrix da linha 229
           build-mode: ${{ matrix.build-mode }}       #pegando parametros da matrix da linha 229
