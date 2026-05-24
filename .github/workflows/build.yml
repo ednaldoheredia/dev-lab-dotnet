@@ -1,3 +1,5 @@
+name: CI/CD Pipeline
+
 on:
   push:
     branches:
@@ -16,6 +18,8 @@ jobs:
     name: Versionamento
     permissions:
       contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -75,6 +79,16 @@ jobs:
         with:
           name: dotnet-test-results
           path: TestResults
+    
+      - name: Publish Project
+        run: dotnet publish Poc_01.csproj -c Release -o ./publish --no-build
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: ./publish
+    
 
   backend-lint:
     needs: versionamento
@@ -94,7 +108,7 @@ jobs:
           VALIDATE_YAML: "true"
           VALIDATE_CSHARP: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
   code-security-check:
     name: Code Security Check
     needs: versionamento
@@ -124,3 +138,15 @@ jobs:
         name: Analyze code - ${{ matrix.name }}
         with:
           category: "/language:${{ matrix.language }}"
+
+ build-docker-image:
+    name: Packing and Publish
+    needs: [versionamento, build]
+    runs-on: ubuntu-latest
+    env:
+      version: ${{ needs.versionamento.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Docker build Imagem
+        run: | docker build -t aspnetcore_poc01:${{env.version}} 
