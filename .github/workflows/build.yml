@@ -153,4 +153,22 @@ jobs:
           path: ./publish
 
       - name: Docker build Imagem
-        run: docker build -t aspnetcore_poc01:${{ env.version }} .
+        run: | 
+          docker build -t ${{vars.DOCKERHUB_REPOSITORY}}:${{ env.version }} .
+
+      - name: Tag Docker as Latest
+        run: |
+          docker tag ${{vars.DOCKERHUB_REPOSITORY}}${{ env.version }}${{vars.DOCKERHUB_REPOSITORY}}:latest
+        if: github.ref != 'refs/heads/master'
+
+      - name: Docker Login
+        uses: actions/login-action@v4
+        with:
+          username:${{secrets.DOCKERHUB_USERNAME}}
+          password:${{secrets.DOCKERHUB_PASSWORD}}
+      
+       - name: Docker Push
+        run: |
+          docker push --all-tags ${{vars.DOCKERHUB_REPOSITORY}} 
+
+
