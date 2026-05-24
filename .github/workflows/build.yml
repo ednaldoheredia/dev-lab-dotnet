@@ -71,6 +71,9 @@ jobs:
     - name: Test project
       run: dotnet test --no-build --configuration Release --verbosity normal --logger trx --results-directory "TestResults"
 
+     - name: Test project
+      run: dotnet test --no-build --configuration Release --verbosity normal --logger trx --results-directory "TestResults"
+
     - uses: actions/upload-artifact@v4
       with:
         name: dotnet-test-results
