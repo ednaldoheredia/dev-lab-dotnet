@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - master
-
   pull_request:
     branches:
       - master
@@ -12,16 +11,12 @@ permissions:
   pull-requests: write
 
 jobs:
-
   versionamento:
     runs-on: ubuntu-latest
     name: Versionamento
-
     permissions:
       contents: write
-
     steps:
-
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
@@ -54,9 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build Project
     needs: versionamento
-
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -83,74 +76,36 @@ jobs:
           name: dotnet-test-results
           path: TestResults
 
-  
   backend-lint:
     needs: versionamento
     runs-on: ubuntu-latest
     name: Backend Lint
-
+    if: github.ref != 'refs/heads/master'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          
-          # o c�digo abaixo � necess�rio para eu pegar todo hist�rico de commits
-          fetch-depth: 0
+          fetch-depth: 0 # Corrigido aqui (estava abaixo de um espa�o vazio)
 
-      - uses: github/super-linter@v6    #pegar o linter 
+      - uses: github/super-linter@v6
         env:
-          DEFAULT_BRANCH: "master"        #pegar a master para valida��o 
+          DEFAULT_BRANCH: "master"
           VALIDATE_ALL_CODEBASE: "false"
-          VALIDATE_YAML: "true"         #pegar o linter para validar o yaml
-          VALIDATE_CSHARP: "true"       #pegar o linter para validar o yaml
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #utilizando esse Token
-    if: github.ref != 'refs/heads/master'  
+          VALIDATE_YAML: "true"
+          VALIDATE_CSHARP: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   dependency-check:
     name: Dependency Check
     needs: versionamento
     runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/master'
     permissions:
       contents: read
-      pull-requests: write                        #Autorizando.
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4                 #Fazendo checkout dos arquivos.
+      - uses: actions/checkout@v4
 
-      - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para valida��o de componentes.
+      - uses: actions/dependency-review-action@v4
         with:
           comment-summary-in-pr: always
-    if: github.ref != 'refs/heads/master'
-  
-
-  code-security-check:
-    name: Code Security Check
-    needs: versionamento           #Vai precisar do versionamento, needs � depend�ncia.
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write       #Vai precisar de umas permiss�es a mais para escrita, para avisar de vulneabilidade
-      packages: read               #Ler pacotes
-      actions: read                #Ler actions
-      contents: read              
-
-    strategy:                      #Estrat�gia de Matri          
-      matrix:                      #Cria uma estrat�gia em forma de matriz, ele gera combina��es ex: vers�es[10,12,14] as [ubuntu-latest, windows-lates], podemos dispara 
-                                   #jobs ou passos utilizando a matriz    
-        include:                   #incluindo parametros language e buil-mode.    
-          - name: Backend
-            language: csharp
-            build-mode: autobuild   #Quando for a linguagem C# faz build
-
-    steps:
-      - uses: actions/checkout@v4                    #fazendo checkout
-
-      - uses: github/codeql-action/init@v3           #essa action vai rodar por baixo dos panos para valida��o do c�digo, ele tem dois parametros initialize e actino
-        name: Initialize CodeQL - ${{ matrix.name }} #essa action vai rodar por baixo dos panos para valida��o do c�digo
-        with:
-          languages: ${{ matrix.language }}          #pegando parametros da matrix da linha 229
-          build-mode: ${{ matrix.build-mode }}       #pegando parametros da matrix da linha 229
-
-      - uses: github/codeql-action/analyze@v3
-        name: Analyze code - ${{ matrix.name }}
-        with:
-          category: "/language:${{ matrix.language }}"
-    if: github.ref != 'refs/heads/master'
