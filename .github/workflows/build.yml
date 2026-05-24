@@ -34,7 +34,7 @@ jobs:
           release-branch: master
           prefix: v
 
-      - name: Tag do Repositório
+      - name: Tag do Repositï¿½rio
         if: github.ref == 'refs/heads/master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,7 +85,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Corrigido aqui (estava abaixo de um espaço vazio)
+          fetch-depth: 0 # Corrigido aqui (estava abaixo de um espaï¿½o vazio)
 
       - uses: github/super-linter@v6
         env:
