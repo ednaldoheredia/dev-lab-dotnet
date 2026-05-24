@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Versionamento
     permissions:
-      contents: write # Obrigatório para permitir que a action crie a tag
+      contents: write # Obrigatório para permitir que a action crie a tag  assss
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -50,7 +50,4 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Test project
-        run: dotnet test --no-build --verbosity normal
-
-      - name: Test project1
         run: dotnet test --no-build --verbosity normal
