@@ -95,19 +95,38 @@ jobs:
           VALIDATE_CSHARP: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  dependency-check:
-    name: Dependency Check
-    needs: versionamento
+ code-security-check:
+    name: Code Security Check
+    needs: versionamento           #Vai precisar do versionamento, needs é dependência.
     runs-on: ubuntu-latest
-    # ESSA LINHA ABAIXO GARANTE QUE SÓ RODA EM PULL REQUESTS:
-    if: github.event_name == 'pull_request'
     permissions:
-      contents: read
-      pull-requests: write                        #Autorizando.
-    steps:
-      - uses: actions/checkout@v4                 #Fazendo checkout dos arquivos.
+      security-events: write       #Vai precisar de umas permissões a mais para escrita, para avisar de vulneabilidade
+      packages: read               #Ler pacotes
+      actions: read                #Ler actions
+      contents: read              
 
-      - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para validação de componentes.
+    strategy:                      #Estratégia de Matri          
+      matrix:                      #Cria uma estratégia em forma de matriz, ele gera combinações ex: versões[10,12,14] as [ubuntu-latest, windows-lates], podemos dispara 
+                                   #jobs ou passos utilizando a matriz    
+        include:                   #incluindo parametros language e buil-mode.    
+          - name: Backend
+            language: csharp
+            build-mode: autobuild   #Quando for a linguagem C# faz build
+          - name: Frontend
+            language: javascript    #Quando for a linguagem Javacript não faz build-mode:none
+            build-mode: none
+
+    steps:
+      - uses: actions/checkout@v4                    #fazendo checkout
+
+      - uses: github/codeql-action/init@v3           #essa action vai rodar por baixo dos panos para validação do código, ele tem dois parametros initialize e actino
+        name: Initialize CodeQL - ${{ matrix.name }} #essa action vai rodar por baixo dos panos para validação do código
         with:
-          comment-summary-in-pr: always
+          languages: ${{ matrix.language }}          #pegando parametros da matrix da linha 229
+          build-mode: ${{ matrix.build-mode }}       #pegando parametros da matrix da linha 229
+
+      - uses: github/codeql-action/analyze@v3
+        name: Analyze code - ${{ matrix.name }}
+        with:
+          category: "/language:${{ matrix.language }}"
     if: github.ref != 'refs/heads/master'
