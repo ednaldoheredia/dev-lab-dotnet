@@ -137,10 +137,7 @@ jobs:
           - name: Backend
             language: csharp
             build-mode: autobuild   #Quando for a linguagem C# faz build
-          - name: Frontend
-            language: javascript    #Quando for a linguagem Javacript não faz build-mode:none
-            build-mode: none
-
+         
     steps:
       - uses: actions/checkout@v4                    #fazendo checkout
 
@@ -155,6 +152,7 @@ jobs:
         with:
           category: "/language:${{ matrix.language }}"
     if: github.ref != 'refs/heads/main'
+
   build-docker-image:
     name: Packing and Publish
     needs: [versionamento, build]
