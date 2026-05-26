@@ -1,8 +1,8 @@
 ﻿name: Deploy Application
-#Quando meu build.yml for executado com sucesso
+
 on: 
   workflow_run:
-    workflows: ["Build Project"]
+    workflows: ["Build Project"] 
     types:
       - completed
 
@@ -12,17 +12,20 @@ env:
 jobs:
   versionamento:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     outputs:
       versao: ${{ steps.get-version.outputs.versao }}
       docker-container-registry: ${{ steps.docker-image-registry.outputs.docker-container-registry }}
 
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download Versao Artifact
+        uses: actions/download-artifact@v4
         with:
           name: versao
           path: ./
+          # Importante: na v4, para buscar de OUTRO workflow, você DEVE passar o github-token e o run-id corretos
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run_id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ github.event.workflow_run.id }}
      
       - name: Get version from file
         id: get-version
@@ -41,18 +44,19 @@ jobs:
     needs: versionamento
     runs-on: ubuntu-latest
     permissions:     
-      id-token: write    #Gerar Token 
-      contents: read     #Ler conteúdo não vou fazer escrita, foi habilitado o id-token pois vou usar em alguns passos 
+      id-token: write    
+      contents: read     
     environment: staging
 
     steps:
-      - uses: google-github-actions/auth@v2  #Autenticação no meu provedor Cloud, vamos pegar no MarktPlace Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          #Criar uma Servidor de staging - Na Guia do github environment e passar as credenciais abaixo........
           credentials_json: ${{ secrets.GPC_CREDENTIALS }}
-          #E o mesmo para todo Ambiente do Google Cloud
           project_id: ${{ vars.PROJECT_ID }}
-      - uses: google-github-actions/deploy-cloudrun@v2
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
         id: deploy-to-cloud-run
         with:
           project_id: ${{ vars.GCP_PROJECT_ID }}
