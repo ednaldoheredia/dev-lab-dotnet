@@ -119,27 +119,30 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web
-          path: ./publish          
+          path: ./publish
 
-  dependency-check:
-    name: Dependency Check
+  backend-lint:
     needs: versionamento
     runs-on: ubuntu-latest
-
-    # ESSA LINHA ABAIXO GARANTE QUE SÓ RODA EM PULL REQUESTS:
-    if: github.event_name == 'pull_request'
-
-    permissions:
-      contents: read
-      pull-requests: write #Autorizando.
+    name: Backend Lint
+    if: github.ref != 'refs/heads/master'
 
     steps:
-      - uses: actions/checkout@v4 #Fazendo checkout dos arquivos.
-
-      - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para validação de componentes.
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          comment-summary-in-pr: always
 
+          # o código abaixo é necessário para eu pegar todo histórico de commits
+          fetch-depth: 0
+
+      - uses: github/super-linter@v6 #pegar o linter
+        env:
+          DEFAULT_BRANCH: "master" #pegar a master para validação
+          VALIDATE_ALL_CODEBASE: "false"
+          VALIDATE_YAML: "true" #pegar o linter para validar o yaml
+          VALIDATE_CSHARP: "true" #pegar o linter para validar o yaml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #utilizando esse Token
+            
   code-security-check:
     name: Code Security Check
     needs: versionamento #Vai precisar do versionamento, needs é dependência.
