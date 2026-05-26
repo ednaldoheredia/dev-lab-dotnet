@@ -137,11 +137,11 @@ jobs:
 
       - name: Docker build Imagem
         run: | 
-          docker build -t ${{vars.DOCKERHUB_REPOSITORY}}:${{ env.version }} .
+          docker build -t ${{ vars.DOCKERHUB_REPOSITORY }}:${{ env.version }} .
 
       - name: Tag Docker as Latest
         run: |
-          docker tag ${{vars.DOCKERHUB_REPOSITORY}}${{ env.version }} ${{vars.DOCKERHUB_REPOSITORY}}:latest
+          docker tag ${{ vars.DOCKERHUB_REPOSITORY }}:${{ env.version }} ${{ vars.DOCKERHUB_REPOSITORY }}:latest
         if: github.ref != 'refs/heads/master'
 
       - name: Docker Login
