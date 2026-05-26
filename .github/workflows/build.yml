@@ -1,10 +1,9 @@
-name: CI/CD Pipeline
+name: Build Project
 
 on:
   push:
     branches:
       - master
-
   pull_request:
     branches:
       - master
@@ -52,7 +51,21 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git tag ${{ steps.version.outputs.version }}
           git push origin --tags
-
+        if: github.ref == 'refs/heads/master'
+    
+      - name: Create file versão
+         run: |
+          echo ${{ steps.version.outputs.version }} > versao.txt
+        if: github.ref == 'refs/heads/master'
+    
+      - name: Upload Versao Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: versao
+          path: versao.txt
+        if: github.ref == 'refs/heads/master'
+      
+        
   build:
     runs-on: ubuntu-latest
     name: Build Project
@@ -98,6 +111,12 @@ jobs:
             -o ./publish \
             --no-build
 
+      - name: Tag Published Version
+        uses: restackio/upload-json-file-action@2.1
+        with:
+          file: ./publish/appsettings.json
+          fields: "{\"MY_APP_VERSION\": \"${{needs.versionamento.outputs.version}}\"}"
+
       - name: Upload Publish Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -121,91 +140,4 @@ jobs:
         uses: github/super-linter@v6
         env:
           DEFAULT_BRANCH: "master"
-          VALIDATE_ALL_CODEBASE: "false"
-          VALIDATE_YAML: "true"
-          VALIDATE_CSHARP: "true"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  code-security-check:
-    name: Code Security Check
-    needs: versionamento
-    runs-on: ubuntu-latest
-
-    if: github.ref != 'refs/heads/master'
-
-    permissions:
-      security-events: write
-      packages: read
-      actions: read
-      contents: read
-
-    strategy:
-      matrix:
-        include:
-          - name: Backend
-            language: csharp
-            build-mode: autobuild
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Initialize CodeQL - ${{ matrix.name }}
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
-
-      - name: Analyze code - ${{ matrix.name }}
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
-
-  build-docker-image:
-    name: Packing and Publish
-    needs:
-      - versionamento
-      - build
-
-    runs-on: ubuntu-latest
-
-    env:
-      version: ${{ needs.versionamento.outputs.version }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download Publish Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: web
-          path: ./publish
-
-      - name: Sanitize Docker Tag
-        id: docker_tag
-        run: |
-          VERSION=$(echo "${{ env.version }}" | tr '/' '-' | tr ':' '-')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Docker Build Image
-        run: |
-          docker build \
-            -t ${{ vars.DOCKERHUB_REPOSITORY }}:${{ steps.docker_tag.outputs.version }} .
-
-      - name: Tag Docker as Latest
-        if: github.ref == 'refs/heads/master'
-        run: |
-          docker tag \
-            ${{ vars.DOCKERHUB_REPOSITORY }}:${{ steps.docker_tag.outputs.version }} \
-            ${{ vars.DOCKERHUB_REPOSITORY }}:latest
-
-      - name: Docker Login
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Docker Push
-        run: |
-          docker push --all-tags ${{ vars.DOCKERHUB_REPOSITORY }}
+          VALIDATE_ALL_CODEBASE:

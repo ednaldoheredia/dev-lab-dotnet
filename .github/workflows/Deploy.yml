@@ -1,0 +1,66 @@
+﻿name: Deploy Application
+#Quando meu build.yml for executado com sucesso
+on: 
+  workflow_run:
+    workflows: ["Build Project"]
+    types:
+      - completed
+
+env:
+  DOCKER_IMAGE_REGISTRY: "${{ vars.DOCKER_CONTAINER_REGISTRY }}/${{ vars.DOCKERHUB_REPOSITORY }}"
+
+jobs:
+  versionamento:
+    runs-on: ubuntu-latest
+    outputs:
+      versao: ${{ steps.get-version.outputs.versao }}
+      docker-container-registry: ${{ steps.docker-image-registry.outputs.docker-container-registry }}
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: versao
+          path: ./
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run_id: ${{ github.event.workflow_run.id }}
+     
+      - name: Get version from file
+        id: get-version
+        run: |
+          VALUE=$(cat ./versao.txt)
+          echo "::notice:: $VALUE"
+          echo "versao=$VALUE" >> "$GITHUB_OUTPUT"           
+
+      - name: Generate docker image registry
+        id: docker-image-registry
+        run: |
+          echo "docker-container-registry=${{ vars.DOCKER_CONTAINER_REGISTRY }}/${{ vars.DOCKERHUB_REPOSITORY }}:${{ steps.get-version.outputs.versao }}" >> "$GITHUB_OUTPUT" 
+
+  deploy-to-google-cloud:
+    name: Deploy to Google Cloud
+    needs: versionamento
+    runs-on: ubuntu-latest
+    permissions:     
+      id-token: write    #Gerar Token 
+      contents: read     #Ler conteúdo não vou fazer escrita, foi habilitado o id-token pois vou usar em alguns passos 
+    environment: staging
+
+    steps:
+      - uses: google-github-actions/auth@v2  #Autenticação no meu provedor Cloud, vamos pegar no MarktPlace Authenticate to Google Cloud
+        with:
+          #Criar uma Servidor de staging - Na Guia do github environment e passar as credenciais abaixo.
+          credentials_json: ${{ secrets.GPC_CREDENTIALS }}
+          #E o mesmo para todo Ambiente do Google Cloud
+          project_id: ${{ vars.PROJECT_ID }}
+      - uses: google-github-actions/deploy-cloudrun@v2
+        id: deploy-to-cloud-run
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          service: ${{ vars.GCP_RUN_SERVICE }}
+          image: ${{ needs.versionamento.outputs.docker-container-registry }}
+          region: ${{ vars.GCP_RUN_REGION }}
+        
+      - name: Test the Deployment
+        run: |
+          echo "::notice:: ${{ steps.deploy-to-cloud-run.outputs.url }}/index.html"
+          curl -I --fail "${{ steps.deploy-to-cloud-run.outputs.url }}/index.html"
