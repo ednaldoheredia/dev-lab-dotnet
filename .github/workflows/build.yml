@@ -141,7 +141,24 @@ jobs:
           VALIDATE_YAML: "true"         #pegar o linter para validar o yaml
           VALIDATE_CSHARP: "true"       #pegar o linter para validar o yaml
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #utilizando esse Token
-    if: github.ref != 'refs/heads/main'           
+    if: github.ref != 'refs/heads/master'    
+    
+  dependency-check:
+    name: Dependency Check
+    needs: versionamento
+    runs-on: ubuntu-latest
+    # ESSA LINHA ABAIXO GARANTE QUE SÓ RODA EM PULL REQUESTS:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write                        #Autorizando.
+    steps:
+      - uses: actions/checkout@v4                 #Fazendo checkout dos arquivos.
+
+      - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para validação de componentes.
+        with:
+          comment-summary-in-pr: always
+    if: github.ref != 'refs/heads/master'
 
   code-security-check:
     name: Code Security Check
@@ -174,7 +191,7 @@ jobs:
         name: Analyze code - ${{ matrix.name }}
         with:
           category: "/language:${{ matrix.language }}"
-    if: github.ref != 'refs/heads/main'
+    if: github.ref != 'refs/heads/master'
 
   build-docker-image:
     name: Packing and Publish
