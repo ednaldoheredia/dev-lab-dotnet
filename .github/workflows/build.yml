@@ -137,7 +137,7 @@ jobs:
 
       - uses: github/super-linter@v6 #pegar o linter
         env:
-          DEFAULT_BRANCH: "main" #pegar a master para validação
+          DEFAULT_BRANCH: "master" #pegar a master para validação
           VALIDATE_ALL_CODEBASE: "false"
           VALIDATE_YAML: "true" #pegar o linter para validar o yaml
           VALIDATE_CSHARP: "true" #pegar o linter para validar o yaml
