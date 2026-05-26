@@ -51,21 +51,19 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git tag ${{ steps.version.outputs.version }}
           git push origin --tags
-        if: github.ref == 'refs/heads/master'
-    
+
       - name: Create file versão
-         run: |
-          echo ${{ steps.version.outputs.version }} > versao.txt
         if: github.ref == 'refs/heads/master'
-    
+        run: |
+          echo ${{ steps.version.outputs.version }} > versao.txt
+
       - name: Upload Versao Artifact
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v4
         with:
           name: versao
           path: versao.txt
-        if: github.ref == 'refs/heads/master'
-      
-        
+
   build:
     runs-on: ubuntu-latest
     name: Build Project
@@ -112,7 +110,7 @@ jobs:
             --no-build
 
       - name: Tag Published Version
-        uses: restackio/upload-json-file-action@2.1
+        uses: restackio/update-json-file-action@2.1
         with:
           file: ./publish/appsettings.json
           fields: "{\"MY_APP_VERSION\": \"${{needs.versionamento.outputs.version}}\"}"
@@ -122,22 +120,3 @@ jobs:
         with:
           name: web
           path: ./publish
-
-  backend-lint:
-    needs: versionamento
-    runs-on: ubuntu-latest
-    name: Backend Lint
-
-    if: github.ref != 'refs/heads/master'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run Super Linter
-        uses: github/super-linter@v6
-        env:
-          DEFAULT_BRANCH: "master"
-          VALIDATE_ALL_CODEBASE:

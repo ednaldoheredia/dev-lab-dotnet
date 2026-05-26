@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: google-github-actions/auth@v2  #Autenticação no meu provedor Cloud, vamos pegar no MarktPlace Authenticate to Google Cloud
         with:
-          #Criar uma Servidor de staging - Na Guia do github environment e passar as credenciais abaixo.
+          #Criar uma Servidor de staging - Na Guia do github environment e passar as credenciais abaixo........
           credentials_json: ${{ secrets.GPC_CREDENTIALS }}
           #E o mesmo para todo Ambiente do Google Cloud
           project_id: ${{ vars.PROJECT_ID }}
