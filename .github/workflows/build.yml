@@ -51,21 +51,19 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git tag ${{ steps.version.outputs.version }}
           git push origin --tags
-        if: github.ref == 'refs/heads/master'
-    
+
       - name: Create file versão
-         run: |
-          echo ${{ steps.version.outputs.version }} > versao.txt
         if: github.ref == 'refs/heads/master'
-    
+        run: |
+          echo ${{ steps.version.outputs.version }} > versao.txt
+
       - name: Upload Versao Artifact
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v4
         with:
           name: versao
           path: versao.txt
-        if: github.ref == 'refs/heads/master'
-      
-        
+
   build:
     runs-on: ubuntu-latest
     name: Build Project
@@ -140,4 +138,7 @@ jobs:
         uses: github/super-linter@v6
         env:
           DEFAULT_BRANCH: "master"
-          VALIDATE_ALL_CODEBASE:
+          VALIDATE_ALL_CODEBASE: "false"
+          VALIDATE_YAML: "true"
+          VALIDATE_CSHARP: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
