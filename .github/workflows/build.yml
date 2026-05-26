@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+
   pull_request:
     branches:
       - master
@@ -76,10 +77,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '3.0.x'
-          cache: true
-          cache-dependency-path: |
-            Poc_01.sln
+          dotnet-version: '6.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -113,7 +111,7 @@ jobs:
         uses: restackio/update-json-file-action@2.1
         with:
           file: ./publish/appsettings.json
-          fields: "{\"MY_APP_VERSION\": \"${{needs.versionamento.outputs.version}}\"}"
+          fields: "{\"MY_APP_VERSION\": \"${{ needs.versionamento.outputs.version }}\"}"
 
       - name: Upload Publish Artifact
         uses: actions/upload-artifact@v4
@@ -131,46 +129,44 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-
-          # o código abaixo é necessário para eu pegar todo histórico de commits
           fetch-depth: 0
 
-      - uses: github/super-linter@v6 #pegar o linter
+      # pegar o linter
+      - uses: github/super-linter@v6
         env:
-          DEFAULT_BRANCH: "master" #pegar a master para validação
+          DEFAULT_BRANCH: "master"
           VALIDATE_ALL_CODEBASE: "false"
-          VALIDATE_YAML: "true" #pegar o linter para validar o yaml
-          VALIDATE_CSHARP: "true" #pegar o linter para validar o yaml
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #utilizando esse Token
-            
+          VALIDATE_YAML: "true"
+          VALIDATE_CSHARP: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   code-security-check:
     name: Code Security Check
-    needs: versionamento #Vai precisar do versionamento, needs é dependência.
+    needs: versionamento
     runs-on: ubuntu-latest
     if: github.ref != 'refs/heads/master'
 
     permissions:
-      security-events: write #Vai precisar de umas permissões a mais para escrita, para avisar de vulneabilidade
-      packages: read #Ler pacotes
-      actions: read #Ler actions
+      security-events: write
+      packages: read
+      actions: read
       contents: read
 
-    strategy: #Estratégia de Matri
-      matrix: #Cria uma estratégia em forma de matriz, ele gera combinações ex: versões[10,12,14] as [ubuntu-latest, windows-lates], podemos dispara
-               #jobs ou passos utilizando a matriz
-        include: #incluindo parametros language e buil-mode.
+    strategy:
+      matrix:
+        include:
           - name: Backend
             language: csharp
-            build-mode: autobuild #Quando for a linguagem C# faz build
+            build-mode: autobuild
 
     steps:
-      - uses: actions/checkout@v4 #fazendo checkout
+      - uses: actions/checkout@v4
 
-      - uses: github/codeql-action/init@v3 #essa action vai rodar por baixo dos panos para validação do código, ele tem dois parametros initialize e actino
-        name: Initialize CodeQL - ${{ matrix.name }} #essa action vai rodar por baixo dos panos para validação do código
+      - uses: github/codeql-action/init@v3
+        name: Initialize CodeQL - ${{ matrix.name }}
         with:
-          languages: ${{ matrix.language }} #pegando parametros da matrix da linha 229
-          build-mode: ${{ matrix.build-mode }} #pegando parametros da matrix da linha 229
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
 
       - uses: github/codeql-action/analyze@v3
         name: Analyze code - ${{ matrix.name }}
@@ -179,7 +175,10 @@ jobs:
 
   build-docker-image:
     name: Packing and Publish
-    needs: [versionamento, build]
+    needs:
+      - versionamento
+      - build
+
     runs-on: ubuntu-latest
 
     env:
@@ -210,4 +209,4 @@ jobs:
 
       - name: Docker Push
         run: |
-          docker push --all-tags ${{vars.DOCKERHUB_REPOSITORY}}
+          docker push --all-tags ${{ vars.DOCKERHUB_REPOSITORY }}
