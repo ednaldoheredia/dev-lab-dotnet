@@ -110,7 +110,7 @@ jobs:
             --no-build
 
       - name: Tag Published Version
-        uses: restackio/upload-json-file-action@2.1
+        uses: restackio/update-json-file-action@2.1
         with:
           file: ./publish/appsettings.json
           fields: "{\"MY_APP_VERSION\": \"${{needs.versionamento.outputs.version}}\"}"
