@@ -119,49 +119,69 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web
-          path: ./publish
+          path: ./publish          
+
+  dependency-check:
+    name: Dependency Check
+    needs: versionamento
+    runs-on: ubuntu-latest
+
+    # ESSA LINHA ABAIXO GARANTE QUE SÓ RODA EM PULL REQUESTS:
+    if: github.event_name == 'pull_request'
+
+    permissions:
+      contents: read
+      pull-requests: write #Autorizando.
+
+    steps:
+      - uses: actions/checkout@v4 #Fazendo checkout dos arquivos.
+
+      - uses: actions/dependency-review-action@v4 #Baixando essa biblioteca do marcktplace para validação de componentes.
+        with:
+          comment-summary-in-pr: always
 
   code-security-check:
     name: Code Security Check
-    needs: versionamento # Vai precisar do versionamento, needs é dependência.
+    needs: versionamento #Vai precisar do versionamento, needs é dependência.
     runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/master'
+
     permissions:
-      security-events: write # Vai precisar de umas permissões a mais para escrita, para avisar de vulneabilidade
-      packages: read # Ler pacotes
-      actions: read # Ler actions
+      security-events: write #Vai precisar de umas permissões a mais para escrita, para avisar de vulneabilidade
+      packages: read #Ler pacotes
+      actions: read #Ler actions
       contents: read
 
-    strategy: # Estratégia de Matri
-      matrix: # Cria uma estratégia em forma de matriz, ele gera combinações ex: versões[10,12,14] as [ubuntu-latest, windows-lates], podemos dispara jobs ou passos utilizando a matriz
-        include: # incluindo parametros language e buil-mode.
+    strategy: #Estratégia de Matri
+      matrix: #Cria uma estratégia em forma de matriz, ele gera combinações ex: versões[10,12,14] as [ubuntu-latest, windows-lates], podemos dispara
+               #jobs ou passos utilizando a matriz
+        include: #incluindo parametros language e buil-mode.
           - name: Backend
             language: csharp
-            build-mode: autobuild # Quando for a linguagem C# faz build
-          - name: Frontend
-            language: javascript # Quando for a linguagem Javacript não faz build-mode:none
-            build-mode: none
+            build-mode: autobuild #Quando for a linguagem C# faz build
 
     steps:
-      - uses: actions/checkout@v4 # fazendo checkout
+      - uses: actions/checkout@v4 #fazendo checkout
 
-      - uses: github/codeql-action/init@v3 # essa action vai rodar por baixo dos panos para validação do código, ele tem dois parametros initialize e actino
-        name: Initialize CodeQL - ${{ matrix.name }} # essa action vai rodar por baixo dos panos para validação do código
+      - uses: github/codeql-action/init@v3 #essa action vai rodar por baixo dos panos para validação do código, ele tem dois parametros initialize e actino
+        name: Initialize CodeQL - ${{ matrix.name }} #essa action vai rodar por baixo dos panos para validação do código
         with:
-          languages: ${{ matrix.language }} # pegando parametros da matrix da linha 229
-          build-mode: ${{ matrix.build-mode }} # pegando parametros da matrix da linha 229
+          languages: ${{ matrix.language }} #pegando parametros da matrix da linha 229
+          build-mode: ${{ matrix.build-mode }} #pegando parametros da matrix da linha 229
 
       - uses: github/codeql-action/analyze@v3
         name: Analyze code - ${{ matrix.name }}
         with:
           category: "/language:${{ matrix.language }}"
-    if: github.ref != 'refs/heads/main'
 
   build-docker-image:
     name: Packing and Publish
     needs: [versionamento, build]
     runs-on: ubuntu-latest
+
     env:
       version: ${{ needs.versionamento.outputs.version }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -175,9 +195,9 @@ jobs:
           docker build -t ${{ vars.DOCKERHUB_REPOSITORY }}:${{ env.version }} .
 
       - name: Tag Docker as Latest
+        if: github.ref != 'refs/heads/master'
         run: |
           docker tag ${{ vars.DOCKERHUB_REPOSITORY }}:${{ env.version }} ${{ vars.DOCKERHUB_REPOSITORY }}:latest
-        if: github.ref != 'refs/heads/master'
 
       - name: Docker Login
         uses: docker/login-action@v4
