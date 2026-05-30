@@ -71,5 +71,5 @@ jobs:
         
       - name: Test the Deployment
         run: |
-          echo "::notice:: ${{ steps.deploy-to-cloud-run.outputs.url }}/index.html"
-          curl -I --fail "${{ steps.deploy-to-cloud-run.outputs.url }}/index.html"
+          echo "::notice:: ${{ steps.deploy-to-cloud-run.outputs.url }}/weatherforecast"
+          curl -I --fail "${{ steps.deploy-to-cloud-run.outputs.url }}/weatherforecast"
