@@ -12,7 +12,8 @@ env:
 jobs:
   versionamento:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}&&
+            github.event.workflow_run.head_branch == 'master'
     outputs:
       versao: ${{ steps.get-version.outputs.versao }}
       docker-container-registry: ${{ steps.docker-image-registry.outputs.docker-container-registry }}
@@ -52,8 +53,8 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GPC_CREDENTIALS }}
-          project_id: ${{ vars.PROJECT_ID }}
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
