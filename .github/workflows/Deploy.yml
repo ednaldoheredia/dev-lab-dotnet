@@ -12,21 +12,20 @@ env:
 jobs:
   versionamento:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}&&
-            github.event.workflow_run.head_branch == 'master'
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     outputs:
       versao: ${{ steps.get-version.outputs.versao }}
       docker-container-registry: ${{ steps.docker-image-registry.outputs.docker-container-registry }}
 
     steps:
       - name: Download Versao Artifact
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v7
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build.yml                           # ⚠️ IMPORTANTE: Coloque aqui o nome exato do seu arquivo de build (ex: build.yml)
+          run_id: ${{ github.event.workflow_run.id }}
           name: versao
           path: ./
-          # Importante: na v4, para buscar de OUTRO workflow, você DEVE passar o github-token e o run-id corretos
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
      
       - name: Get version from file
         id: get-version
@@ -64,6 +63,7 @@ jobs:
           service: ${{ vars.GCP_RUN_SERVICE }}
           image: ${{ needs.versionamento.outputs.docker-container-registry }}
           region: ${{ vars.GCP_RUN_REGION }}
+   
         
       - name: Test the Deployment
         run: |
