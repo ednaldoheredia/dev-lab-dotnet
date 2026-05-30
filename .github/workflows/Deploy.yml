@@ -19,13 +19,13 @@ jobs:
 
     steps:
       - name: Download Versao Artifact
-        uses: dawidd6/action-download-artifact@v7
+        uses: actions/download-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build.yml                           # ⚠️ IMPORTANTE: Coloque aqui o nome exato do seu arquivo de build (ex: build.yml)
-          run_id: ${{ github.event.workflow_run.id }}
           name: versao
           path: ./
+          # Importante: na v4, para buscar de OUTRO workflow, você DEVE passar o github-token e o run-id corretos
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
      
       - name: Get version from file
         id: get-version
@@ -63,6 +63,10 @@ jobs:
           service: ${{ vars.GCP_RUN_SERVICE }}
           image: ${{ needs.versionamento.outputs.docker-container-registry }}
           region: ${{ vars.GCP_RUN_REGION }}
+          flags: --port=80
+          # 🚀 Adicione isso para o .NET aceitar a porta 80:
+          env_vars: |
+            ASPNETCORE_URLS=http://+:80
    
         
       - name: Test the Deployment
