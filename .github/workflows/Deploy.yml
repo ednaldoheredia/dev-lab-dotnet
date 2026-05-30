@@ -68,7 +68,8 @@ jobs:
           env_vars: |
             ASPNETCORE_URLS=http://+:80
            
-      - name: Test the Deployment
+      - name: Pegando a URL da Aplicação
         run: |
           echo "::notice:: ${{ steps.deploy-to-cloud-run.outputs.url }}/weatherforecast"
-          curl -sSf "${{ steps.deploy-to-cloud-run.outputs.url }}/weatherforecast"
+          # 🚀 Forçamos o método GET de forma explícita e removemos qualquer flag de header anterior
+          curl -X GET -f "${{ steps.deploy-to-cloud-run.outputs.url }}/weatherforecast"
