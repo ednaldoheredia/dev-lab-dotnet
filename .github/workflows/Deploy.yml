@@ -64,7 +64,7 @@ jobs:
           service: ${{ vars.GCP_RUN_SERVICE }}
           image: ${{ needs.versionamento.outputs.docker-container-registry }}
           region: ${{ vars.GCP_RUN_REGION }}
-          flags: --port=80
+   
         
       - name: Test the Deployment
         run: |
