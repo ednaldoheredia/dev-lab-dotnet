@@ -56,7 +56,7 @@ jobs:
         with:
           name: versao
           path: versao.txt
-       # if: github.ref == 'refs/heads/master'
+       ## if: github.ref == 'refs/heads/master'
 
   build:
     runs-on: ubuntu-latest
