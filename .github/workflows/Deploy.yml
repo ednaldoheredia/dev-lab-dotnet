@@ -13,6 +13,9 @@ jobs:
   versionamento:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      actions: read
+      contents: read
     outputs:
       versao: ${{ steps.get-version.outputs.versao }}
       docker-container-registry: ${{ steps.docker-image-registry.outputs.docker-container-registry }}
