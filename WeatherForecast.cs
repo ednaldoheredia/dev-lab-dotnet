@@ -31,14 +31,7 @@ namespace Poc_01
             return $"Data: {Date.ToShortDateString()} | Temp: {TemperatureC}°C ({TemperatureF}°F) | Condição: {Summary} {emoji}";
         }
 
-        /// <summary>
-        /// Exemplo de método para converter a temperatura para Kelvin, caso precise de uso científico.
-        /// </summary>
-        public double GetTemperatureKelvin()
-        {
-            return TemperatureC + 273.15;
-        }
-
+        
        
     }
 }
