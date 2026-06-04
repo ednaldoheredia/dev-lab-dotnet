@@ -30,7 +30,7 @@ namespace Poc_01
             string emoji = IsHot ? "☀️" : "❄️";
             return $"Data: {Date.ToShortDateString()} | Temp: {TemperatureC}°C ({TemperatureF}°F) | Condição: {Summary} {emoji}";
         }
-        public string CadastrarCliente()
+        public string Temperatura()
         {
             string emoji = IsHot ? "☀️" : "❄️";
             return $"Data: {Date.ToShortDateString()} | Temp: {TemperatureC}°C ({TemperatureF}°F) | Condição: {Summary} {emoji}";
