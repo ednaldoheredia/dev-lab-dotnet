@@ -4,13 +4,12 @@ on:
   push:
     branches:
       - master
-
   pull_request:
     branches:
       - master
   workflow_dispatch:
 
-  concurrency:
+concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
