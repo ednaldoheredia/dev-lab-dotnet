@@ -15,7 +15,7 @@ namespace Poc_01
 
         public string Summary { get; set; }
 
-        // --- NOVOS COMPORTAMENTOS ---
+        /// --- NOVOS COMPORTAMENTOS ---
 
         /// <summary>
         /// Propriedade calculada que diz se o clima está quente (acima de 25°C).
