@@ -38,5 +38,10 @@ namespace Poc_01
         {
             return TemperatureC + 273.15;
         }
+
+        public double CalculoTemperatura()
+        {
+            return TemperatureC + 273.15;
+        }
     }
 }
