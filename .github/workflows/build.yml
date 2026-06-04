@@ -42,7 +42,7 @@ jobs:
           release-branch: master
           prefix: v
 
-      - name: Tag do Repositï¿½rio
+      - name: Tag do Repositório
         if: github.ref == 'refs/heads/master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -159,7 +159,7 @@ jobs:
       - build
 
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
     env:
       version: ${{ needs.versionamento.outputs.version }}
 
