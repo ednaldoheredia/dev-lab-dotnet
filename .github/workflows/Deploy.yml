@@ -12,6 +12,9 @@ env:
 jobs:
   versionamento:
     runs-on: ubuntu-latest
+    if: |
+      github.event.workflow_run.conclusion  == 'success' &&
+      github.event.workflow_run.head_branch == 'master'
     
     permissions:
       actions: read
