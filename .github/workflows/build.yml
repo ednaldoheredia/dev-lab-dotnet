@@ -37,7 +37,7 @@ jobs:
           prefix: v
 
       - name: Tag do Repositório
-        if: github.ref == 'refs/heads/master'
+        #if: github.ref == 'refs/heads/master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -50,13 +50,13 @@ jobs:
       - name: Create file versão
         run: |
           echo ${{ steps.version.outputs.version }} > versao.txt
-        if: github.ref == 'refs/heads/master'
+       # if: github.ref == 'refs/heads/master'
 
       - uses: actions/upload-artifact@v4
         with:
           name: versao
           path: versao.txt
-        if: github.ref == 'refs/heads/master'
+       # if: github.ref == 'refs/heads/master'
 
   build:
     runs-on: ubuntu-latest
@@ -169,7 +169,7 @@ jobs:
           docker build -t ${{ vars.DOCKERHUB_REPOSITORY }}:${{ env.version }} .
 
       - name: Tag Docker as Latest
-        if: github.ref != 'refs/heads/master'
+        #if: github.ref != 'refs/heads/master'
         run: |
           docker tag ${{ vars.DOCKERHUB_REPOSITORY }}:${{ env.version }} ${{ vars.DOCKERHUB_REPOSITORY }}:latest
 
