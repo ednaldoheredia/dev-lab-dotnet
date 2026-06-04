@@ -4,20 +4,19 @@ on:
   push:
     branches:
       - master
-
   pull_request:
     branches:
       - master
+  workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   versionamento:
     runs-on: ubuntu-latest
     name: Versionamento
-
     permissions:
       contents: write
 
@@ -30,11 +29,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fix Git Permissions and Fetch tags
-        run: |
-          git config --global --add safe.directory '*'
-          git fetch --tags --force
-
       - name: Run Git Version
         id: version
         uses: codacy/git-version@2.8.0
@@ -42,7 +36,7 @@ jobs:
           release-branch: master
           prefix: v
 
-      - name: Tag do Repositï¿½rio
+      - name: Tag do Repositório
         if: github.ref == 'refs/heads/master'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -54,16 +48,15 @@ jobs:
           git push origin --tags
 
       - name: Create file versão
-        if: github.ref == 'refs/heads/master'
         run: |
           echo ${{ steps.version.outputs.version }} > versao.txt
-
-      - name: Upload Versao Artifact
         if: github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v4
+
+      - uses: actions/upload-artifact@v4
         with:
           name: versao
           path: versao.txt
+        if: github.ref == 'refs/heads/master'
 
   build:
     runs-on: ubuntu-latest
