@@ -20,7 +20,7 @@ namespace Poc_01
         /// <summary>
         /// Propriedade calculada que diz se o clima está quente (acima de 25°C).
         /// </summary>
-        public bool IsHot => TemperatureC > 25;
+        public bool IsHot => TemperatureC > 5  ;
 
         /// <summary>
         /// Método que retorna uma descrição completa e amigável da previsão.
@@ -30,8 +30,6 @@ namespace Poc_01
             string emoji = IsHot ? "☀️" : "❄️";
             return $"Data: {Date.ToShortDateString()} | Temp: {TemperatureC}°C ({TemperatureF}°F) | Condição: {Summary} {emoji}";
         }
-
-        
-       
+     
     }
 }
