@@ -46,8 +46,11 @@ jobs:
     permissions:     
       id-token: write    
       contents: read     
-    environment: staging
-
+    strategy:
+      matrix:
+        environment: [staging, production]
+    environment: $ {{ matrix.environment }}
+    
     steps:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
