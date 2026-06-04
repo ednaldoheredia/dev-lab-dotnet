@@ -68,6 +68,7 @@ jobs:
           region: ${{ vars.GCP_RUN_REGION }}
           flags: --port=80
           # 🚀 Adicione isso para o .NET aceitar a porta 80:oo
+          # 🚀 Adicione isso para o .NET aceitar a porta 80:oo
           env_vars: |
             ASPNETCORE_URLS=http://+:80
            
