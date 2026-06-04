@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Download Versao Artifact
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v6
         with:
           name: versao
           path: ./
