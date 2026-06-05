@@ -25,11 +25,6 @@ namespace Poc_01
         /// <summary>
         /// Método que retorna uma descrição completa e amigável da previsão.
         /// </summary>
-        public string Testes()
-        {
-            string emoji = IsHot ? "☀️" : "❄️";
-            return $"Data: {Date.ToShortDateString()} | Temp: {TemperatureC}°C ({TemperatureF}°F) | Condição: {Summary} {emoji}";
-        }
-        
+      
     }
 }
