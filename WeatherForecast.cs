@@ -20,10 +20,10 @@ namespace Poc_01
         /// <summary>
         /// Propriedade calculada que diz se o clima está quente (acima de 25°C).
         /// </summary>
-        public bool IsHot => TemperatureC > 5;
+        public bool IsHot => TemperatureC > 25;
 
         /// <summary>
-        /// Método que retorna uma descrição completa e amigável da previsão.
+        /// Método que dddddd    uma descrição completa e amigável da previsão.
         /// </summary>
       
     }
