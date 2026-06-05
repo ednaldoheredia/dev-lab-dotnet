@@ -15,7 +15,7 @@ namespace Poc_01
 
         public string Summary { get; set; }
 
-        // --- NOVOS COMPORTAMENTOS ---
+        /// --- NOVOS COMPORTAMENTOS ---
 
         /// <summary>
         /// Propriedade calculada que diz se o clima está quente (acima de 25°C).
@@ -25,11 +25,6 @@ namespace Poc_01
         /// <summary>
         /// Método que retorna uma descrição completa e amigável da previsão.
         /// </summary>
-        public string Testes()
-        {
-            string emoji = IsHot ? "☀️" : "❄️";
-            return $"Data: {Date.ToShortDateString()} | Temp: {TemperatureC}°C ({TemperatureF}°F) | Condição: {Summary} {emoji}";
-        }
-        
+      
     }
 }
